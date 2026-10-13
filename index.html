@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#163b35">
+  <title>FieldVal — Property Inspection</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div><span class="eyebrow">FIELD TOOLKIT</span><h1>FieldVal</h1></div>
+    <div class="status"><span class="status-dot"></span><span id="networkStatus">Checking connection…</span></div>
+  </header>
+
+  <main>
+    <section class="intro">
+      <div><p class="eyebrow">PROPERTY INTELLIGENCE</p><h2>Inspect on site.<br><em>Report with confidence.</em></h2>
+      <p class="muted">Offline-ready inspection records, location-aware photo logs and comparable-based valuation drafts.</p></div>
+      <div class="hero-mark" aria-hidden="true">⌂</div>
+    </section>
+
+    <nav class="tabs" aria-label="App sections">
+      <button class="tab active" data-tab="inspection">01 · Inspection</button>
+      <button class="tab" data-tab="photos">02 · Photo matrix</button>
+      <button class="tab" data-tab="valuation">03 · Valuation</button>
+      <button class="tab" data-tab="records">Saved records</button>
+    </nav>
+
+    <section id="inspection" class="panel">
+      <div class="section-heading"><div><p class="eyebrow">FIELD FORM</p><h2>Property inspection</h2></div><span class="pill">Draft saves locally</span></div>
+      <form id="inspectionForm">
+        <div class="grid two">
+          <label>Property / file ID<input name="propertyId" id="propertyId" placeholder="e.g. FV-2026-001" required></label>
+          <label>Inspector name<input name="inspector" id="inspector" placeholder="Staff member" required></label>
+          <label>Property address<input name="address" id="address" placeholder="Street, town, state" required></label>
+          <label>Property type<select name="propertyType" id="propertyType"><option>Residential</option><option>Commercial</option><option>Mixed use</option><option>Land / plot</option><option>Industrial</option></select></label>
+          <label>Structural condition<select name="structure" id="structure"><option value="5">Excellent</option><option value="4">Good</option><option value="3" selected>Fair</option><option value="2">Poor</option><option value="1">Critical</option></select></label>
+          <label>Neighborhood factors<select name="neighborhood" id="neighborhood"><option value="5">Very desirable</option><option value="4">Desirable</option><option value="3" selected>Average</option><option value="2">Below average</option><option value="1">Unfavourable</option></select></label>
+          <label>Zoning / permitted use<select name="zoning" id="zoning"><option>Residential</option><option>Commercial</option><option>Mixed use</option><option>Agricultural</option><option>Industrial</option><option>Unverified — confirm with authority</option></select></label>
+          <label>Land area (m²)<input type="number" min="0" step="0.01" name="landArea" id="landArea" placeholder="e.g. 450"></label>
+          <label>Building area (m²)<input type="number" min="0" step="0.01" name="buildingArea" id="buildingArea" placeholder="e.g. 180"></label>
+          <label>Inspection date/time<input type="datetime-local" name="inspectionTime" id="inspectionTime"></label>
+        </div>
+        <label>Observations / defects<textarea name="notes" id="notes" rows="4" placeholder="Cracks, roof condition, drainage, access road, utilities, title or planning concerns…"></textarea></label>
+        <div class="button-row"><button type="button" class="btn secondary" id="locateBtn">◎ Capture GPS location</button><span id="locationText" class="small muted">Location not captured</span></div>
+        <input type="hidden" id="latitude" name="latitude"><input type="hidden" id="longitude" name="longitude">
+        <div class="button-row"><button class="btn primary" type="submit">Save inspection locally</button><button class="btn secondary" type="button" id="resetForm">Clear form</button></div>
+      </form>
+    </section>
+
+    <section id="photos" class="panel hidden">
+      <div class="section-heading"><div><p class="eyebrow">EVIDENCE LOG</p><h2>Geotagged photo matrix</h2></div><span class="pill">Camera / gallery</span></div>
+      <p class="muted">Select or take photos, then attach them to a property file. The app records capture time and GPS coordinates when permission is granted. Coordinates and timestamps are stored beside the image; this prototype does not rewrite EXIF metadata or prove a photo is genuine.</p>
+      <label>Property file<select id="photoProperty"></select></label>
+      <label class="upload-box"><span class="upload-icon">＋</span><strong>Add property photos</strong><span class="muted small">Choose camera or image files</span><input id="photoInput" type="file" accept="image/*" capture="environment" multiple></label>
+      <div id="photoGrid" class="photo-grid"></div>
+      <div class="button-row"><button class="btn secondary" id="exportPhotos" type="button">Export photo log (CSV)</button></div>
+    </section>
+
+    <section id="valuation" class="panel hidden">
+      <div class="section-heading"><div><p class="eyebrow">COMPARABLES & MODEL</p><h2>Valuation draft generator</h2></div><span class="pill">Indicative only</span></div>
+      <div class="notice"><strong>Data integrity note</strong><p>Historical sale prices are not automatically fetched in this offline prototype. Import a CSV of verified transactions or enter comparables below. A real deployment needs licensed/local transaction sources and professional review.</p></div>
+      <label>Property file<select id="valuationProperty"></select></label>
+      <div class="grid two">
+        <label>Subject property area (m²)<input id="subjectArea" type="number" min="0" step="0.01" placeholder="Enter area"></label>
+        <label>Search radius (km)<input id="radiusKm" type="number" min="0.1" step="0.1" value="5"></label>
+        <label>Condition adjustment (%)<input id="conditionAdjustment" type="number" step="1" value="0"></label>
+        <label>Neighborhood adjustment (%)<input id="neighborhoodAdjustment" type="number" step="1" value="0"></label>
+      </div>
+      <div class="subheading"><h3>Comparable sales</h3><p class="muted small">Enter price, area and distance. Optional CSV columns: address,price,area,distance_km,date,type</p></div>
+      <form id="compForm" class="comp-form">
+        <input id="compAddress" placeholder="Comparable address / reference" required>
+        <div class="grid three">
+          <label>Sale price (₦)<input id="compPrice" type="number" min="1" required></label>
+          <label>Area (m²)<input id="compArea" type="number" min="0.01" step="0.01" required></label>
+          <label>Distance (km)<input id="compDistance" type="number" min="0" step="0.1" value="1" required></label>
+        </div>
+        <label>Sale date / source<input id="compDate" placeholder="e.g. 2026-06, registered sale"></label>
+        <button class="btn secondary" type="submit">＋ Add comparable</button>
+      </form>
+      <div class="button-row"><label class="btn secondary file-btn">Import comparables CSV<input type="file" id="csvInput" accept=".csv,text/csv"></label><button class="btn secondary" id="exportComps" type="button">Export comparables CSV</button></div>
+      <div id="compList" class="comp-list"></div>
+      <button class="btn primary wide" id="generateReport" type="button">Generate valuation draft</button>
+      <div id="reportOutput" class="report-output hidden"></div>
+    </section>
+
+    <section id="records" class="panel hidden">
+      <div class="section-heading"><div><p class="eyebrow">ON-DEVICE STORAGE</p><h2>Saved records</h2></div><span id="recordCount" class="pill">0 records</span></div>
+      <p class="muted">Records are kept on this device. Export a backup regularly; clearing browser storage or changing devices can remove them.</p>
+      <div class="button-row"><button class="btn secondary" id="exportRecords">Export all records (JSON)</button><label class="btn secondary file-btn">Import backup<input type="file" id="importRecords" accept=".json,application/json"></label></div>
+      <div id="recordList" class="record-list"></div>
+    </section>
+    <footer><span>FIELDVAL · PROTOTYPE</span><span>Offline-first · Local data storage</span></footer>
+  </main>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
